@@ -1,0 +1,42 @@
+version: '3'
+
+tasks:
+  clean:
+    cmds:
+      - rm -rf ./go-exa/src/evaluation/*
+      - mkdir -p ./go-exa/src/evaluation
+      - rm -rf ./frontend/src/proto3/*
+      - mkdir -p ./frontend/src/proto3
+
+  docker:build:
+    desc: 'Build docker images'
+    cmds:
+      - task -d backend docker:build
+      - task -d frontend docker:build
+      - task -d go-exa docker:build
+
+  start:
+    desc: 'Enter dev mode'
+    cmds:
+      - task -d frontend local:dev & task -d backend local:dev -w && fg
+
+  start-backend:
+    desc: 'Backend: Enter dev mode'
+    cmds:
+      - task -d backend local:dev -w
+
+  start-frontend:
+    desc: 'Frontend: Enter dev mode'
+    cmds:
+      - task -d frontend local:dev
+
+  start-frontend-test:
+    desc: 'Frontend: test'
+    cmds:
+      - task -d frontend local:test
+
+  test:
+    desc: 'Run all tests'
+    cmds:
+      - task -d backend local:test
+      - task -d go-exa local:test

@@ -1,0 +1,145 @@
+{
+  "name": "taskfile-launcher",
+  "displayName": "A launcher for tasks in a Taskfile.yml",
+  "description": "A Visual Studio Code extension for displaying and running all tasks defined in a Taskfile.yml file (from taskfile.dev).",
+  "version": "1.0.0",
+  "icon": "images/logo.png",
+  "license": "GPL-3.0",
+  "publisher": "iulian-radu-at",
+  "homepage": "https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.taskfile-launcher",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iulian-radu-at/taskfile-launcher"
+  },
+  "engines": {
+    "vscode": "^1.59.0"
+  },
+  "bugs": {
+    "url": "https://github.com/iulian-radu-at/taskfile-launcher/issues"
+  },
+  "main": "./out/main.js",
+  "scripts": {
+    "vscode:prepublish": "npm run -S esbuild-base -- --minify",
+    "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run -S esbuild-base -- --sourcemap",
+    "package": "vsce package",
+    "install:local": "code --install-extension taskfile-launcher-1.0.0.vsix",
+    "publish": "vsce publish",
+    "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
+    "test-compile": "rimraf out && tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "pretest": "yarn run compile && yarn run lint",
+    "test": "echo node ./out/test/runTest.js"
+  },
+  "dependencies": {
+    "glob": "7.2.0"
+  },
+  "devDependencies": {
+    "@types/glob": "7.2.0",
+    "@types/node": "16.11.10",
+    "@types/vscode": "1.59.0",
+    "@typescript-eslint/eslint-plugin": "5.11.0",
+    "@typescript-eslint/parser": "5.11.0",
+    "esbuild": "0.14.21",
+    "eslint": "8.9.0",
+    "rimraf": "3.0.2",
+    "typescript": "4.5.5",
+    "vscode-test": "1.6.1"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:taskfileLauncher",
+    "onCommand:taskfileLauncher.refresh"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "taskfileLauncher",
+          "title": "Taskfile launcher",
+          "icon": "resources/taskfile-launcher.svg"
+        }
+      ]
+    },
+    "views": {
+      "taskfileLauncher": [
+        {
+          "id": "taskfileLauncher",
+          "name": "Taskfile launcher"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "taskfileLauncher.refresh",
+        "title": "Refresh list of taskfiles",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "taskfileLauncher.findInFile",
+        "title": "Find the task in the file",
+        "icon": "$(search)"
+      },
+      {
+        "command": "taskfileLauncher.runTask",
+        "title": "Run the task",
+        "icon": "$(play)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "taskfileLauncher.refresh",
+          "when": "view == taskfileLauncher"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "taskfileLauncher.findInFile",
+          "when": "view == taskfileLauncher && viewItem == task",
+          "group": "inline"
+        }
+      ]
+    },
+    "configuration": [
+      {
+        "title": "Taskfile launcher",
+        "properties": {
+          "taskfileLauncher.debug": {
+            "type": "boolean",
+            "default": false,
+            "description": "Taskfile launcher: log all actions in an output window",
+            "scope": "resource"
+          },
+          "taskfileLauncher.defaultResultExpanded": {
+            "type": "boolean",
+            "default": false,
+            "description": "Taskfile launcher: show all found results initially expanded (otherwise collapsed)",
+            "scope": "resource"
+          },
+          "taskfileLauncher.taskfileNames": {
+            "type": [
+              "string"
+            ],
+            "default": [
+              "Taskfile.yml"
+            ],
+            "description": "Taskfile launcher: list the name of all files containing tasks (as a glob)",
+            "scope": "resource"
+          }
+        }
+      }
+    ]
+  },
+  "findUnusedExports": {
+    "exclude": [
+      "./src/**/*.stories.@(js|jsx|ts|tsx)"
+    ]
+  },
+  "taskfileLauncher": [
+    "tasks/Taskfile.yml"
+  ]
+}

@@ -1,0 +1,7 @@
+out
+node_modules
+.vscode-test/
+*.vsix
+.history
+test-project/.history
+**/taskfile-launcher.log
