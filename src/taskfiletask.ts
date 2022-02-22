@@ -12,8 +12,9 @@ export class TTaskfileTask extends vscode.TreeItem {
     public readonly parent: TTaskfileTask | undefined,
     public readonly id: string,
     private readonly type: DEPENDENCY_TYPE,
-    readonly label: string,
+    public readonly label: string,
     public readonly description?: string,
+    public readonly tooltip?: string,
     /* It contains [task name, task description]  */
     public readonly tasks?: string[][],
     public readonly collapsibleState?: vscode.TreeItemCollapsibleState,
@@ -22,6 +23,7 @@ export class TTaskfileTask extends vscode.TreeItem {
     super(label, collapsibleState);
 
     this.iconPath = new vscode.ThemeIcon(this.getIconPath());
+    this.tooltip = this.getTooltip();
     this.contextValue = this.getContextValue();
   }
 
@@ -35,6 +37,19 @@ export class TTaskfileTask extends vscode.TreeItem {
         return 'file-text';
       case DEPENDENCY_TYPE.TASK:
         return 'play';
+    }
+  }
+
+  private getTooltip() {
+    switch (this.type) {
+      case DEPENDENCY_TYPE.TASK_EXECUTABLE_MISSING:
+        return undefined;
+      case DEPENDENCY_TYPE.TASKFILE_MISSING:
+        return undefined;
+      case DEPENDENCY_TYPE.FILE:
+        return this.tooltip;
+      case DEPENDENCY_TYPE.TASK:
+        return 'Click to run it';
     }
   }
 

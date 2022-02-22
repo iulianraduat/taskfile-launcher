@@ -1,5 +1,6 @@
 import * as glob from 'glob';
 import * as path from 'path';
+import { basename } from 'path';
 import * as vscode from 'vscode';
 import { readJsonFile } from './taskfile-launcher/fsUtils';
 import { log } from './taskfile-launcher/log';
@@ -146,6 +147,7 @@ export class TaskfileLauncherProvider implements vscode.TreeDataProvider<TTaskfi
         taskName,
         taskDescription,
         undefined,
+        undefined,
         vscode.TreeItemCollapsibleState.None,
         {
           command: 'taskfileLauncher.runTask',
@@ -168,16 +170,42 @@ function findTasks(globTaskfile: string): Promise<TTaskfileTask>[] {
 }
 
 async function mapTaskfile(filePath: string): Promise<TTaskfileTask> {
+  const label = getPathRelativeToWorkspace(filePath);
+
   const taskFile = new TTaskfileTask(
     undefined,
     filePath,
     DEPENDENCY_TYPE.FILE,
-    filePath,
+    label,
     undefined,
+    filePath,
     await getTasks(filePath),
     isResultExpanded() ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed
   );
   return taskFile;
+}
+
+function getPathRelativeToWorkspace(filePath: string) {
+  const workspaceFolders = vscode.workspace.workspaceFolders!;
+
+  if (workspaceFolders.length === 1 && isDefaultFolderName(workspaceFolders[0])) {
+    return filePath;
+  }
+
+  for (let wsf of workspaceFolders) {
+    const rootPath = wsf.uri.fsPath;
+    if (filePath.startsWith(rootPath) === false) {
+      continue;
+    }
+
+    const relativePath = filePath.substring(rootPath.length);
+    return wsf.name + ' ' + relativePath;
+  }
+  return filePath;
+}
+
+function isDefaultFolderName(wsf: vscode.WorkspaceFolder) {
+  return wsf.name === basename(wsf.uri.fsPath);
 }
 
 async function getTasks(filePath: string): Promise<string[][] | undefined> {
@@ -197,6 +225,7 @@ const NoTaskExecutable: TTaskfileTask = new TTaskfileTask(
   'The command task was not found. Visit taskfile.dev',
   undefined,
   undefined,
+  undefined,
   vscode.TreeItemCollapsibleState.None
 );
 
@@ -205,6 +234,7 @@ const NoTaskfileFound: TTaskfileTask = new TTaskfileTask(
   '-',
   DEPENDENCY_TYPE.TASKFILE_MISSING,
   'No taskfile was found',
+  undefined,
   undefined,
   undefined,
   vscode.TreeItemCollapsibleState.None

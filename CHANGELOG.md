@@ -16,3 +16,18 @@ All notable changes to the "Taskfile launcher" extension will be documented in t
 ### Removed
 
 - Nothing
+
+## 1.0.1 (2022-02-22)
+
+### Added
+
+- It displays the folder names as defined in a workspace (if appropiate)
+
+### Changed
+
+- Improved the outline of the extension's icon in sidebar
+- Improved the tooltip texts
+
+### Removed
+
+- Nothing
