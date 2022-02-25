@@ -3,12 +3,10 @@ import * as path from 'path';
 import { basename } from 'path';
 import * as vscode from 'vscode';
 import { readJsonFile } from './taskfile-launcher/fsUtils';
-import { log } from './taskfile-launcher/log';
+import { isDebugEnabled, log } from './taskfile-launcher/log';
 import { getTaskfileNames, isResultExpanded } from './taskfile-launcher/settings';
 import { execute, uniqe } from './taskfile-launcher/utils';
 import { DEPENDENCY_TYPE, TTaskfileTask } from './taskfiletask';
-
-const taskRe = /\* ([^ ]+):[ \t]*([^\r\n]*)/g;
 
 export class TaskfileLauncherProvider implements vscode.TreeDataProvider<TTaskfileTask> {
   private cacheFiles: TTaskfileTask[] | undefined;
@@ -208,12 +206,25 @@ function isDefaultFolderName(wsf: vscode.WorkspaceFolder) {
   return wsf.name === basename(wsf.uri.fsPath);
 }
 
+const reTask = /\* ([^ ]+):[ \t]*([^\r\n]*)/g;
 async function getTasks(filePath: string): Promise<string[][] | undefined> {
   try {
     /* We check if command task is accessible */
-    const stdout = await execute(`task -a -t ${filePath}`);
-    return Array.from(stdout.matchAll(taskRe), (m) => [m[1], m[2]]);
-  } catch (err) {
+    const cmd = `task -a -t ${filePath}`;
+    const stdout = await execute(cmd);
+    log(cmd);
+    if (isDebugEnabled()) {
+      stdout.split(/\r?\n/).forEach(line => log('> ' + line));
+    }
+    const tasks = Array.from(stdout.matchAll(reTask), (m) => [m[1], m[2]]);
+    if (isDebugEnabled()) {
+      log(' Detected tasks:');
+      tasks.forEach(taskMeta => log(`< ${taskMeta[0]} - ${taskMeta[1]}`));
+      log('');
+    }
+    return tasks;
+  } catch (err: any) {
+    log('Error', err.message);
     return undefined;
   }
 }

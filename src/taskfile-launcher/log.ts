@@ -13,7 +13,7 @@ export function log(category: string, context?: any, ms1970Utc?: number): number
   return tsNow;
 }
 
-function isDebugEnabled(): boolean {
+export function isDebugEnabled(): boolean {
   return vscode.workspace.getConfiguration().get('taskfileLauncher.debug', false);
 }
 

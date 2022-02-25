@@ -17,7 +17,7 @@ All notable changes to the "Taskfile launcher" extension will be documented in t
 
 - Nothing
 
-## 1.0.1 (2022-02-22)
+## 1.1.0 (2022-02-22)
 
 ### Added
 
@@ -27,6 +27,20 @@ All notable changes to the "Taskfile launcher" extension will be documented in t
 
 - Improved the outline of the extension's icon in sidebar
 - Improved the tooltip texts
+
+### Removed
+
+- Nothing
+
+## 1.1.1 (2022-02-25)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Improved debug
 
 ### Removed
 
