@@ -7,9 +7,9 @@ export enum DEPENDENCY_TYPE {
   TASK,
 }
 
-export class TTaskfileTask extends vscode.TreeItem {
+export class TaskfileTask extends vscode.TreeItem {
   constructor(
-    public readonly parent: TTaskfileTask | undefined,
+    public readonly parent: TaskfileTask | undefined,
     public readonly id: string,
     private readonly type: DEPENDENCY_TYPE,
     public readonly label: string,

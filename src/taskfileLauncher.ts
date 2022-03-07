@@ -6,15 +6,15 @@ import { readJsonFile } from './taskfile-launcher/fsUtils';
 import { isDebugEnabled, log } from './taskfile-launcher/log';
 import { getTaskfileNames, isResultExpanded } from './taskfile-launcher/settings';
 import { execute, uniqe } from './taskfile-launcher/utils';
-import { DEPENDENCY_TYPE, TTaskfileTask } from './taskfiletask';
+import { DEPENDENCY_TYPE, TaskfileTask } from './taskfiletask';
 
-export class TaskfileLauncherProvider implements vscode.TreeDataProvider<TTaskfileTask> {
-  private cacheFiles: TTaskfileTask[] | undefined;
+export class TaskfileLauncherProvider implements vscode.TreeDataProvider<TaskfileTask> {
+  private cacheFiles: TaskfileTask[] | undefined;
 
-  private _onDidChangeTreeData: vscode.EventEmitter<TTaskfileTask | undefined> = new vscode.EventEmitter<
-    TTaskfileTask | undefined
+  private _onDidChangeTreeData: vscode.EventEmitter<TaskfileTask | undefined> = new vscode.EventEmitter<
+    TaskfileTask | undefined
   >();
-  public readonly onDidChangeTreeData: vscode.Event<TTaskfileTask | undefined> = this._onDidChangeTreeData.event;
+  public readonly onDidChangeTreeData: vscode.Event<TaskfileTask | undefined> = this._onDidChangeTreeData.event;
 
   constructor(private workspaceFolders: string[]) {
     this.refresh();
@@ -35,7 +35,7 @@ export class TaskfileLauncherProvider implements vscode.TreeDataProvider<TTaskfi
       ]);
       log('Declared globs for Taskfile.yml like files', globs);
 
-      const cacheFiles: TTaskfileTask[] = (await Promise.all(globs.flatMap(findTasks))).filter(uniqe);
+      const cacheFiles: TaskfileTask[] = (await Promise.all(globs.flatMap(findTasks))).filter(uniqe);
 
       if (cacheFiles.length === 0) {
         resolve([NoTaskfileFound]);
@@ -66,7 +66,7 @@ export class TaskfileLauncherProvider implements vscode.TreeDataProvider<TTaskfi
     return files.map((f) => path.resolve(pathToPrj, f));
   }
 
-  public findInFile(task: TTaskfileTask): any {
+  public findInFile(task: TaskfileTask): any {
     const filePath = task.command?.arguments?.[0] || '';
     const taskName = (task.command?.arguments?.[1] || '') + ':';
     vscode.workspace.openTextDocument(filePath).then((doc) => {
@@ -110,15 +110,15 @@ export class TaskfileLauncherProvider implements vscode.TreeDataProvider<TTaskfi
 
   /* TreeDataProvider specific functions */
 
-  public getParent(element: TTaskfileTask) {
+  public getParent(element: TaskfileTask) {
     return element.parent;
   }
 
-  public getTreeItem(element: TTaskfileTask): vscode.TreeItem {
+  public getTreeItem(element: TaskfileTask): vscode.TreeItem {
     return element;
   }
 
-  public getChildren(element?: TTaskfileTask): Thenable<TTaskfileTask[]> {
+  public getChildren(element?: TaskfileTask): Thenable<TaskfileTask[]> {
     if (element) {
       return Promise.resolve(this.tasksInFile(element));
     }
@@ -126,19 +126,20 @@ export class TaskfileLauncherProvider implements vscode.TreeDataProvider<TTaskfi
     return Promise.resolve(this.getFiles());
   }
 
-  private getFiles(): TTaskfileTask[] {
+  private getFiles(): TaskfileTask[] {
     return this.cacheFiles ?? [];
   }
-  private tasksInFile(node: TTaskfileTask): TTaskfileTask[] {
+
+  private tasksInFile(node: TaskfileTask): TaskfileTask[] {
     const mapFn = this.mapTask2TreeNode(node);
     return node.tasks?.map(mapFn) ?? [];
   }
 
-  private mapTask2TreeNode(node: TTaskfileTask) {
+  private mapTask2TreeNode(node: TaskfileTask) {
     const filePath: string = node.id;
-    return (task: string[]): TTaskfileTask => {
+    return (task: string[]): TaskfileTask => {
       const [taskName, taskDescription] = task;
-      return new TTaskfileTask(
+      return new TaskfileTask(
         node,
         `${filePath}::${taskName}`,
         DEPENDENCY_TYPE.TASK,
@@ -157,7 +158,7 @@ export class TaskfileLauncherProvider implements vscode.TreeDataProvider<TTaskfi
   }
 }
 
-function findTasks(globTaskfile: string): Promise<TTaskfileTask>[] {
+function findTasks(globTaskfile: string): Promise<TaskfileTask>[] {
   return glob
     .sync(globTaskfile, {
       nodir: true,
@@ -167,10 +168,10 @@ function findTasks(globTaskfile: string): Promise<TTaskfileTask>[] {
     .map(mapTaskfile);
 }
 
-async function mapTaskfile(filePath: string): Promise<TTaskfileTask> {
+async function mapTaskfile(filePath: string): Promise<TaskfileTask> {
   const label = getPathRelativeToWorkspace(filePath);
 
-  const taskFile = new TTaskfileTask(
+  const taskFile = new TaskfileTask(
     undefined,
     filePath,
     DEPENDENCY_TYPE.FILE,
@@ -209,17 +210,16 @@ function isDefaultFolderName(wsf: vscode.WorkspaceFolder) {
 const reTask = /\* ([^ ]+):[ \t]*([^\r\n]*)/g;
 async function getTasks(filePath: string): Promise<string[][] | undefined> {
   try {
-    /* We check if command task is accessible */
     const cmd = `task -a -t ${filePath}`;
     const stdout = await execute(cmd);
     log(cmd);
     if (isDebugEnabled()) {
-      stdout.split(/\r?\n/).forEach(line => log('> ' + line));
+      stdout.split(/\r?\n/).forEach((line) => log('> ' + line));
     }
     const tasks = Array.from(stdout.matchAll(reTask), (m) => [m[1], m[2]]);
     if (isDebugEnabled()) {
       log(' Detected tasks:');
-      tasks.forEach(taskMeta => log(`< ${taskMeta[0]} - ${taskMeta[1]}`));
+      tasks.forEach((taskMeta) => log(`< ${taskMeta[0]} - ${taskMeta[1]}`));
       log('');
     }
     return tasks;
@@ -229,7 +229,7 @@ async function getTasks(filePath: string): Promise<string[][] | undefined> {
   }
 }
 
-const NoTaskExecutable: TTaskfileTask = new TTaskfileTask(
+const NoTaskExecutable: TaskfileTask = new TaskfileTask(
   undefined,
   '-',
   DEPENDENCY_TYPE.TASK_EXECUTABLE_MISSING,
@@ -240,7 +240,7 @@ const NoTaskExecutable: TTaskfileTask = new TTaskfileTask(
   vscode.TreeItemCollapsibleState.None
 );
 
-const NoTaskfileFound: TTaskfileTask = new TTaskfileTask(
+const NoTaskfileFound: TaskfileTask = new TaskfileTask(
   undefined,
   '-',
   DEPENDENCY_TYPE.TASKFILE_MISSING,

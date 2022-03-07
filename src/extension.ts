@@ -2,7 +2,7 @@
 
 import * as vscode from 'vscode';
 import { TaskfileLauncherProvider } from './taskfileLauncher';
-import { TTaskfileTask } from './taskfiletask';
+import { TaskfileTask } from './taskfiletask';
 
 // find-unused-exports:ignore-next-line-exports
 export const activate = (context: vscode.ExtensionContext) => {
@@ -19,7 +19,7 @@ export const activate = (context: vscode.ExtensionContext) => {
   disposable = vscode.commands.registerCommand('taskfileLauncher.refresh', () => taskfileLauncherProvider.refresh());
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand('taskfileLauncher.findInFile', (task: TTaskfileTask) =>
+  disposable = vscode.commands.registerCommand('taskfileLauncher.findInFile', (task: TaskfileTask) =>
     taskfileLauncherProvider.findInFile(task)
   );
   context.subscriptions.push(disposable);
