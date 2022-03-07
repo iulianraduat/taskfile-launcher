@@ -45,3 +45,18 @@ All notable changes to the "Taskfile launcher" extension will be documented in t
 ### Removed
 
 - Nothing
+
+## 1.1.2 (2022-03-07)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Improved debug
+- Fixed bug related to no results being displayed even if there are files matching the glob
+
+### Removed
+
+- Nothing

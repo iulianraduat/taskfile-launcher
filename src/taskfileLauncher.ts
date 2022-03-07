@@ -2,19 +2,24 @@ import * as glob from 'glob';
 import * as path from 'path';
 import { basename } from 'path';
 import * as vscode from 'vscode';
-import { readJsonFile } from './taskfile-launcher/fsUtils';
+import { getFullPosixPath, readJsonFile } from './taskfile-launcher/fsUtils';
 import { isDebugEnabled, log } from './taskfile-launcher/log';
-import { getTaskfileNames, isResultExpanded } from './taskfile-launcher/settings';
+import {
+  getTaskfileNames,
+  isResultExpanded,
+} from './taskfile-launcher/settings';
 import { execute, uniqe } from './taskfile-launcher/utils';
 import { DEPENDENCY_TYPE, TaskfileTask } from './taskfiletask';
 
-export class TaskfileLauncherProvider implements vscode.TreeDataProvider<TaskfileTask> {
+export class TaskfileLauncherProvider
+  implements vscode.TreeDataProvider<TaskfileTask>
+{
   private cacheFiles: TaskfileTask[] | undefined;
 
-  private _onDidChangeTreeData: vscode.EventEmitter<TaskfileTask | undefined> = new vscode.EventEmitter<
-    TaskfileTask | undefined
-  >();
-  public readonly onDidChangeTreeData: vscode.Event<TaskfileTask | undefined> = this._onDidChangeTreeData.event;
+  private _onDidChangeTreeData: vscode.EventEmitter<TaskfileTask | undefined> =
+    new vscode.EventEmitter<TaskfileTask | undefined>();
+  public readonly onDidChangeTreeData: vscode.Event<TaskfileTask | undefined> =
+    this._onDidChangeTreeData.event;
 
   constructor(private workspaceFolders: string[]) {
     this.refresh();
@@ -28,14 +33,21 @@ export class TaskfileLauncherProvider implements vscode.TreeDataProvider<Taskfil
       }
 
       const taskfileNames = getTaskfileNames();
-      const globs = this.workspaceFolders.flatMap((folder) => [
-        ...taskfileNames.map((name) => `${folder}${path.sep}${name}`),
+      const globs: TPathGlob[] = this.workspaceFolders.flatMap((folder) => [
+        ...taskfileNames.map((name) => ({ folder, globTaskfile: name })),
         ...this.getGlobFromPackageJson(folder),
         ...this.getGlobFromTaskfileLauncherJson(folder),
       ]);
-      log('Declared globs for Taskfile.yml like files', globs);
+      log(
+        'Declared globs for Taskfile.yml like files',
+        globs.map(({ folder, globTaskfile }) =>
+          getFullPosixPath(folder, globTaskfile)
+        )
+      );
 
-      const cacheFiles: TaskfileTask[] = (await Promise.all(globs.flatMap(findTasks))).filter(uniqe);
+      const cacheFiles: TaskfileTask[] = (
+        await Promise.all(globs.flatMap(findTasks))
+      ).filter(uniqe);
 
       if (cacheFiles.length === 0) {
         resolve([NoTaskfileFound]);
@@ -47,23 +59,34 @@ export class TaskfileLauncherProvider implements vscode.TreeDataProvider<Taskfil
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  private getGlobFromPackageJson(pathToPrj: string) {
+  private getGlobFromPackageJson(pathToPrj: string): TPathGlob[] {
     const pathToPackageJson = path.resolve(pathToPrj, 'package.json');
     const packageJson = readJsonFile(pathToPackageJson);
-    return this.fixPath(pathToPrj, packageJson?.taskfileLauncher);
+    return this.getPathGlob(pathToPrj, packageJson?.taskfileLauncher) ?? [];
   }
 
-  private getGlobFromTaskfileLauncherJson(pathToPrj: string) {
-    const pathToFindUnusedExportsConfig = path.resolve(pathToPrj, '.taskfileLauncher.json');
-    return this.fixPath(pathToPrj, readJsonFile(pathToFindUnusedExportsConfig) as string[]);
+  private getGlobFromTaskfileLauncherJson(pathToPrj: string): TPathGlob[] {
+    const pathToFindUnusedExportsConfig = path.resolve(
+      pathToPrj,
+      '.taskfileLauncher.json'
+    );
+    return (
+      this.getPathGlob(
+        pathToPrj,
+        readJsonFile(pathToFindUnusedExportsConfig) as string[]
+      ) ?? []
+    );
   }
 
-  private fixPath(pathToPrj: string, files?: string[]) {
+  private getPathGlob(
+    pathToPrj: string,
+    files?: string[]
+  ): TPathGlob[] | undefined {
     if (files === undefined) {
-      return [];
+      return;
     }
 
-    return files.map((f) => path.resolve(pathToPrj, f));
+    return files.map((f) => ({ folder: pathToPrj, globTaskfile: f }));
   }
 
   public findInFile(task: TaskfileTask): any {
@@ -71,7 +94,8 @@ export class TaskfileLauncherProvider implements vscode.TreeDataProvider<Taskfil
     const taskName = (task.command?.arguments?.[1] || '') + ':';
     vscode.workspace.openTextDocument(filePath).then((doc) => {
       vscode.window.showTextDocument(doc).then(() => {
-        const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
+        const editor: vscode.TextEditor | undefined =
+          vscode.window.activeTextEditor;
         const document: vscode.TextDocument | undefined = editor?.document;
         if (editor === undefined || document === undefined) {
           return;
@@ -93,7 +117,9 @@ export class TaskfileLauncherProvider implements vscode.TreeDataProvider<Taskfil
   }
 
   public runTask(filePath: string, taskName: string) {
-    const terminal = vscode.window.createTerminal(`Run task ${taskName} from ${filePath}`);
+    const terminal = vscode.window.createTerminal(
+      `Run task ${taskName} from ${filePath}`
+    );
     terminal.show();
     terminal.sendText(`task -t ${filePath} ${taskName}`);
   }
@@ -158,14 +184,20 @@ export class TaskfileLauncherProvider implements vscode.TreeDataProvider<Taskfil
   }
 }
 
-function findTasks(globTaskfile: string): Promise<TaskfileTask>[] {
+function findTasks(pathGlob: TPathGlob): Promise<TaskfileTask>[] {
+  const { folder, globTaskfile } = pathGlob;
+  const globFile = getFullPosixPath(folder, globTaskfile);
   return glob
     .sync(globTaskfile, {
+      cwd: folder,
       nodir: true,
       nosort: true,
       realpath: true,
     })
-    .map(mapTaskfile);
+    .map((f) => {
+      log(`Glob '${globFile}' found '${f}'`);
+      return mapTaskfile(f);
+    });
 }
 
 async function mapTaskfile(filePath: string): Promise<TaskfileTask> {
@@ -179,7 +211,9 @@ async function mapTaskfile(filePath: string): Promise<TaskfileTask> {
     undefined,
     filePath,
     await getTasks(filePath),
-    isResultExpanded() ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed
+    isResultExpanded()
+      ? vscode.TreeItemCollapsibleState.Expanded
+      : vscode.TreeItemCollapsibleState.Collapsed
   );
   return taskFile;
 }
@@ -187,11 +221,14 @@ async function mapTaskfile(filePath: string): Promise<TaskfileTask> {
 function getPathRelativeToWorkspace(filePath: string) {
   const workspaceFolders = vscode.workspace.workspaceFolders!;
 
-  if (workspaceFolders.length === 1 && isDefaultFolderName(workspaceFolders[0])) {
+  if (
+    workspaceFolders.length === 1 &&
+    isDefaultFolderName(workspaceFolders[0])
+  ) {
     return filePath;
   }
 
-  for (let wsf of workspaceFolders) {
+  for (const wsf of workspaceFolders) {
     const rootPath = wsf.uri.fsPath;
     if (filePath.startsWith(rootPath) === false) {
       continue;
@@ -212,16 +249,21 @@ async function getTasks(filePath: string): Promise<string[][] | undefined> {
   try {
     const cmd = `task -a -t ${filePath}`;
     const stdout = await execute(cmd);
-    log(cmd);
-    if (isDebugEnabled()) {
-      stdout.split(/\r?\n/).forEach((line) => log('> ' + line));
-    }
     const tasks = Array.from(stdout.matchAll(reTask), (m) => [m[1], m[2]]);
+
+    const logMessages: string[] = [];
+    logMessages.push(cmd);
     if (isDebugEnabled()) {
-      log(' Detected tasks:');
-      tasks.forEach((taskMeta) => log(`< ${taskMeta[0]} - ${taskMeta[1]}`));
-      log('');
+      stdout.split(/\r?\n/).forEach((line) => logMessages.push('> ' + line));
+
+      logMessages.push(' Detected tasks:');
+      tasks.forEach((taskMeta) =>
+        logMessages.push(`< ${taskMeta[0]} - ${taskMeta[1]}`)
+      );
+      logMessages.push('');
     }
+    log(logMessages.join('\n'));
+
     return tasks;
   } catch (err: any) {
     log('Error', err.message);
@@ -250,3 +292,8 @@ const NoTaskfileFound: TaskfileTask = new TaskfileTask(
   undefined,
   vscode.TreeItemCollapsibleState.None
 );
+
+interface TPathGlob {
+  folder: string;
+  globTaskfile: string;
+}
