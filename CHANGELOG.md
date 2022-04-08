@@ -60,3 +60,17 @@ All notable changes to the "Taskfile launcher" extension will be documented in t
 ### Removed
 
 - Nothing
+
+## 1.1.3 (2022-04-08)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Fixed bug related to ignored setting related to initial display of the results as expanded or collapsed
+
+### Removed
+
+- Nothing

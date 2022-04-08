@@ -66,14 +66,14 @@ export class TaskfileLauncherProvider
   }
 
   private getGlobFromTaskfileLauncherJson(pathToPrj: string): TPathGlob[] {
-    const pathToFindUnusedExportsConfig = path.resolve(
+    const pathToTaskfileLauncherConfig = path.resolve(
       pathToPrj,
       '.taskfileLauncher.json'
     );
     return (
       this.getPathGlob(
         pathToPrj,
-        readJsonFile(pathToFindUnusedExportsConfig) as string[]
+        readJsonFile(pathToTaskfileLauncherConfig) as string[]
       ) ?? []
     );
   }
