@@ -74,3 +74,17 @@ All notable changes to the "Taskfile launcher" extension will be documented in t
 ### Removed
 
 - Nothing
+
+## 1.1.4 (2022-06-20)
+
+### Added
+
+- Support link for extension's author (https://www.patreon.com/iulian_radu_at)
+
+### Changed
+
+- Updated packages
+
+### Removed
+
+- Nothing
