@@ -88,3 +88,18 @@ All notable changes to the "Taskfile launcher" extension will be documented in t
 ### Removed
 
 - Nothing
+
+## 1.2.0 (2022-07-08)
+
+### Added
+
+- Support to use a custom shell when starting a task
+- Log which task was started and which what shell
+
+### Changed
+
+- Nothing
+
+### Removed
+
+- Nothing

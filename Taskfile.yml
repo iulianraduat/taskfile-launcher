@@ -4,6 +4,7 @@ version: '3'
 
 vars:
   GREETING: Hello, World!
+  REVIEW: Review successful
 
 tasks:
   default:
@@ -13,5 +14,5 @@ tasks:
 
   review:
     cmds:
-      - echo "{{.GREETING}}"
+      - echo "{{.REVIEW}}"
     silent: true

@@ -1,10 +1,11 @@
 import * as glob from 'glob';
 import * as path from 'path';
-import { basename } from 'path';
 import * as vscode from 'vscode';
 import { getFullPosixPath, readJsonFile } from './taskfile-launcher/fsUtils';
 import { isDebugEnabled, log } from './taskfile-launcher/log';
 import {
+  getShellArgs,
+  getShellPath,
   getTaskfileNames,
   isResultExpanded,
 } from './taskfile-launcher/settings';
@@ -117,8 +118,19 @@ export class TaskfileLauncherProvider
   }
 
   public runTask(filePath: string, taskName: string) {
+    const shellPath = getShellPath();
+    const shellArgs = getShellArgs();
+
+    const logShellPath = shellPath || vscode.env.shell;
+    const logShellArgs = shellArgs?.length ? ' ' + shellArgs?.join(' ') : '';
+
+    log(
+      `Starting "${taskName}" from "${filePath}" with \`${logShellPath}${logShellArgs}\``
+    );
     const terminal = vscode.window.createTerminal(
-      `Run task ${taskName} from ${filePath}`
+      `Run task ${taskName} from ${filePath}`,
+      shellPath,
+      shellArgs
     );
     terminal.show();
     terminal.sendText(`task -t ${filePath} ${taskName}`);
@@ -241,7 +253,7 @@ function getPathRelativeToWorkspace(filePath: string) {
 }
 
 function isDefaultFolderName(wsf: vscode.WorkspaceFolder) {
-  return wsf.name === basename(wsf.uri.fsPath);
+  return wsf.name === path.basename(wsf.uri.fsPath);
 }
 
 const reTask = /\* ([^ ]+):[ \t]*([^\r\n]*)/g;

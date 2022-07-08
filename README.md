@@ -48,6 +48,10 @@ Or create a file called .taskfileLauncher.json in the same folder with package.j
 
 If both are used then all globs will be used.
 
+## Used terminal
+
+The task will be started with the default terminal. This is defined in the Visual Studio Code setting "Terminal > Integrated > Default Profile: <your OS>". Take care that this setting will be ignored if there is defined any shell via the setting "terminal.integrated.shell.<your OS>" or any shell arguments via "terminal.integrated.shellArgs.<your OS>".
+
 ### Screenshot
 
 Bellow you can see an example of found tasks as are they displayed by this extension:
@@ -60,6 +64,11 @@ There are no special requirements.
 
 ## Extension Settings
 
+- taskfileLauncher.debug:
+
+  - Taskfile launcher: log all actions in an output window
+  - default false
+
 - taskfileLauncher.defaultResultExpanded:
 
   - Taskfile launcher: show all found results initially expanded (otherwise collapsed)
@@ -69,6 +78,16 @@ There are no special requirements.
 
   - Taskfile launcher: list the name of all files containing tasks (as a glob)
   - default Taskfile.yml
+
+- taskfileLauncher.shellPath:
+
+  - Taskfile launcher: path to a shell executable to be used in the terminal
+  - default terminal configured in Visual Studio Code
+
+- taskfileLauncher.shellArgs:
+
+  - Taskfile launcher: args for the shell executable defined in taskfileLauncher.shellPath (each argument is separated by a space)
+  - default none
 
 ## Known Issues
 
