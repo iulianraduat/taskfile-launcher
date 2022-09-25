@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import { log } from './log';
 
 export const readJsonFile = (
@@ -22,7 +23,6 @@ export const readJsonFile = (
   }
 };
 
-const reBacklash = /\\/g;
-export function getFullPosixPath(folder: string, globTaskfile: string) {
-  return `${folder.replace(reBacklash, '/')}/${globTaskfile}`;
+export function pathResolve(...pathSegments: string[]): string {
+  return path.resolve(...pathSegments).replace(/\\/g, '/');
 }

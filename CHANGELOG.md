@@ -103,3 +103,17 @@ All notable changes to the "Taskfile launcher" extension will be documented in t
 ### Removed
 
 - Nothing
+
+## 1.2.1 (2022-09-25)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Updated packages
+
+### Removed
+
+- Nothing

@@ -1,7 +1,7 @@
 import * as glob from 'glob';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { getFullPosixPath, readJsonFile } from './taskfile-launcher/fsUtils';
+import { pathResolve, readJsonFile } from './taskfile-launcher/fsUtils';
 import { isDebugEnabled, log } from './taskfile-launcher/log';
 import {
   getShellArgs,
@@ -42,7 +42,7 @@ export class TaskfileLauncherProvider
       log(
         'Declared globs for Taskfile.yml like files',
         globs.map(({ folder, globTaskfile }) =>
-          getFullPosixPath(folder, globTaskfile)
+          pathResolve(folder, globTaskfile)
         )
       );
 
@@ -198,7 +198,7 @@ export class TaskfileLauncherProvider
 
 function findTasks(pathGlob: TPathGlob): Promise<TaskfileTask>[] {
   const { folder, globTaskfile } = pathGlob;
-  const globFile = getFullPosixPath(folder, globTaskfile);
+  const globFile = pathResolve(folder, globTaskfile);
   return glob
     .sync(globTaskfile, {
       cwd: folder,
