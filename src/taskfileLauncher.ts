@@ -148,7 +148,7 @@ export class TaskfileLauncherProvider
 
   /* TreeDataProvider specific functions */
 
-  public getParent(element: TaskfileTask) {
+  public getParent(element: TaskfileTask): TaskfileTask | undefined {
     return element.parent;
   }
 

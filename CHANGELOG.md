@@ -117,3 +117,18 @@ All notable changes to the "Taskfile launcher" extension will be documented in t
 ### Removed
 
 - Nothing
+
+## 1.2.2 (2023-06-10)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Updated packages
+- Fixed the badges
+
+### Removed
+
+- Nothing
