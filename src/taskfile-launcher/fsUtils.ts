@@ -18,7 +18,7 @@ export const readJsonFile = (
     );
     return JSON.parse(content);
   } catch (e: any) {
-    log(`Error parsing "${path}"`, e.message ?? e);
+    log(`Error parsing "${path}"`, e?.message ?? e);
     return undefined;
   }
 };

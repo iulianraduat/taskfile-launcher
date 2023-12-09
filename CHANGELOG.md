@@ -132,3 +132,17 @@ All notable changes to the "Taskfile launcher" extension will be documented in t
 ### Removed
 
 - Nothing
+
+## 1.2.3 (2023-12-09)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Fixed the path to found Taskfile.yml
+
+### Removed
+
+- Nothing

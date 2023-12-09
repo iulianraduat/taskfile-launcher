@@ -138,8 +138,8 @@ export class TaskfileLauncherProvider
 
   private async isTaskCommandPresent(): Promise<boolean> {
     try {
-      /* We check if task executable is accesible */
-      execute('task --version');
+      /* We check if task executable is accessible */
+      await execute('task --version');
       return true;
     } catch (err) {
       return false;
@@ -203,12 +203,12 @@ function findTasks(pathGlob: TPathGlob): Promise<TaskfileTask>[] {
     .sync(globTaskfile, {
       cwd: folder,
       nodir: true,
-      nosort: true,
       realpath: true,
+      absolute: true,
     })
-    .map((f) => {
-      log(`Glob '${globFile}' found '${f}'`);
-      return mapTaskfile(f);
+    .map((file) => {
+      log(`Glob '${globFile}' found '${file}'`);
+      return mapTaskfile(file);
     });
 }
 
@@ -260,6 +260,7 @@ const reTask = /\* ([^ ]+):[ \t]*([^\r\n]*)/g;
 async function getTasks(filePath: string): Promise<string[][] | undefined> {
   try {
     const cmd = `task -a -t ${filePath}`;
+    log('Execute', cmd);
     const stdout = await execute(cmd);
     const tasks = Array.from(stdout.matchAll(reTask), (m) => [m[1], m[2]]);
 
@@ -278,7 +279,7 @@ async function getTasks(filePath: string): Promise<string[][] | undefined> {
 
     return tasks;
   } catch (err: any) {
-    log('Error', err.message);
+    log('Error', err?.message);
     return undefined;
   }
 }
