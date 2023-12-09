@@ -146,3 +146,17 @@ All notable changes to the "Taskfile launcher" extension will be documented in t
 ### Removed
 
 - Nothing
+
+## 1.3.0 (2023-12-09)
+
+### Added
+
+- All found tasks are also available in the `Terminal/Run Task` menu of Visual Studio Code, group `taskfile`
+
+### Changed
+
+- Nothing
+
+### Removed
+
+- Nothing

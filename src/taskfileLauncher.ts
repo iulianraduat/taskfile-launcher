@@ -16,6 +16,7 @@ export class TaskfileLauncherProvider
   implements vscode.TreeDataProvider<TaskfileTask>
 {
   private cacheFiles: TaskfileTask[] | undefined;
+  private cacheTasks: vscode.Task[] | undefined;
 
   private _onDidChangeTreeData: vscode.EventEmitter<TaskfileTask | undefined> =
     new vscode.EventEmitter<TaskfileTask | undefined>();
@@ -27,6 +28,8 @@ export class TaskfileLauncherProvider
   }
 
   public async refresh() {
+    this.cacheTasks = undefined;
+
     this.cacheFiles = await new Promise(async (resolve) => {
       if (!(await this.isTaskCommandPresent())) {
         resolve([NoTaskExecutable]);
@@ -118,11 +121,8 @@ export class TaskfileLauncherProvider
   }
 
   public runTask(filePath: string, taskName: string) {
-    const shellPath = getShellPath();
-    const shellArgs = getShellArgs();
-
-    const logShellPath = shellPath || vscode.env.shell;
-    const logShellArgs = shellArgs?.length ? ' ' + shellArgs?.join(' ') : '';
+    const [shellPath, shellArgs, logShellPath, logShellArgs] =
+      this.getShellPathArgs();
 
     log(
       `Starting "${taskName}" from "${filePath}" with \`${logShellPath}${logShellArgs}\``
@@ -134,6 +134,21 @@ export class TaskfileLauncherProvider
     );
     terminal.show();
     terminal.sendText(`task -t ${filePath} ${taskName}`);
+  }
+
+  private getShellPathArgs(): [
+    string | undefined,
+    string[] | undefined,
+    string,
+    string
+  ] {
+    const shellPath = getShellPath();
+    const shellArgs = getShellArgs();
+
+    const logShellPath = shellPath || vscode.env.shell;
+    const logShellArgs = shellArgs?.length ? ' ' + shellArgs?.join(' ') : '';
+
+    return [shellPath, shellArgs, logShellPath, logShellArgs];
   }
 
   private async isTaskCommandPresent(): Promise<boolean> {
@@ -166,6 +181,45 @@ export class TaskfileLauncherProvider
 
   private getFiles(): TaskfileTask[] {
     return this.cacheFiles ?? [];
+  }
+
+  public getAllTasks(): vscode.Task[] {
+    if (this.cacheTasks) {
+      return this.cacheTasks;
+    }
+
+    this.cacheTasks = this.cacheFiles
+      ?.flatMap((file) => {
+        if (file.parent !== undefined) {
+          return undefined;
+        }
+
+        return file.tasks?.map((task) => this.getTask(file.label, task[0]));
+      })
+      .filter(Boolean) as vscode.Task[];
+    return this.cacheTasks ?? [];
+  }
+
+  public getTask(filePath: string, taskName: string): vscode.Task {
+    const [shellPath, shellArgs] = this.getShellPathArgs();
+    const definition: TaskfileDefinition = {
+      type: 'taskfile',
+      task: taskName,
+      file: filePath,
+    };
+    const vscodeTask = new vscode.Task(
+      definition,
+      vscode.TaskScope.Workspace,
+      taskName,
+      `taskfile`,
+      new vscode.ShellExecution(`task -t ${filePath} ${taskName}`, {
+        executable: shellPath,
+        shellArgs: shellArgs,
+      }),
+      []
+    );
+    vscodeTask.detail = `${filePath}: ${taskName}`;
+    return vscodeTask;
   }
 
   private tasksInFile(node: TaskfileTask): TaskfileTask[] {
@@ -309,4 +363,11 @@ const NoTaskfileFound: TaskfileTask = new TaskfileTask(
 interface TPathGlob {
   folder: string;
   globTaskfile: string;
+}
+
+export interface TaskfileDefinition extends vscode.TaskDefinition {
+  /** The task name */
+  task: string;
+  /** The taskfile containing the task */
+  file: string;
 }
