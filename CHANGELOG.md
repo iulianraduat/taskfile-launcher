@@ -160,3 +160,17 @@ All notable changes to the "Taskfile launcher" extension will be documented in t
 ### Removed
 
 - Nothing
+
+## 1.3.1 (2024-04-10)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Updated the links
+
+### Removed
+
+- Nothing
