@@ -1,12 +1,16 @@
 # Taskfile launcher
 
-[![Marketplace Version](https://img.shields.io/vscode-marketplace/v/iulian-radu-at.taskfile-launcher)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.taskfile-launcher)
-[![Installs](https://img.shields.io/vscode-marketplace/i/iulian-radu-at.taskfile-launcher)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.taskfile-launcher)
-[![Rating](https://img.shields.io/vscode-marketplace/r/iulian-radu-at.taskfile-launcher)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.taskfile-launcher)
+[![Marketplace Version](https://vsmarketplacebadges.dev/version/iulian-radu-at.taskfile-launcher.svg)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.taskfile-launcher)
+[![Installs](https://vsmarketplacebadges.dev/installs/iulian-radu-at.taskfile-launcher.svg)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.taskfile-launcher)
+[![Rating](https://vsmarketplacebadges.dev/rating-short/iulian-radu-at.taskfile-launcher.svg)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.taskfile-launcher)
 <a href="http://opensource.org/licenses/GPL-3.0" target="_blank" rel="noreferrer noopener"><img src="https://img.shields.io/badge/license-GPL-orange.svg?color=blue&amp;style=flat-square" alt="The GPL-3.0 License"></a>
 
 Automatically find all tasks defined in Taskfile.yml like files.
 For more information about Taskfile.yml files visit [taskfile.dev](https://taskfile.dev/).
+
+## Sponsorship
+
+By purchasing [Coding Guidelines for React with TypeScript](https://www.amazon.com/dp/B0DD3DNDY1) from any Amazon website, you will get a set of guidelines for writing a clean, maintainable, and efficient code. Also you will sponsor me, showing your appreciation for my effort in creating and mentaining this extension.
 
 ## Features
 

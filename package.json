@@ -2,7 +2,7 @@
   "name": "taskfile-launcher",
   "displayName": "A launcher for tasks in a Taskfile.yml",
   "description": "A Visual Studio Code extension for displaying and running all tasks defined in a Taskfile.yml file (from taskfile.dev).",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "icon": "images/logo.png",
   "license": "GPL-3.0",
   "publisher": "iulian-radu-at",
@@ -15,7 +15,7 @@
     "url": "https://github.com/iulianraduat/taskfile-launcher/issues"
   },
   "sponsor": {
-    "url": "https://www.patreon.com/iulianraduat"
+    "url": "https://www.amazon.com/dp/B0DD3DNDY1"
   },
   "engines": {
     "vscode": "^1.75.0"
@@ -29,7 +29,7 @@
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node --target=es6",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "package": "vsce package",
-    "install:local": "code --install-extension taskfile-launcher-1.3.1.vsix",
+    "install:local": "code --install-extension taskfile-launcher-1.3.2.vsix --profile \"VSCode extension\"",
     "publish": "vsce publish",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "test-compile": "rimraf out && tsc -p ./",
@@ -39,17 +39,17 @@
     "test": "echo node ./out/test/runTest.js"
   },
   "dependencies": {
-    "glob": "10.3.10"
+    "glob": "10.4.5"
   },
   "devDependencies": {
-    "@types/node": "16.11.10",
-    "@types/vscode": "1.75.0",
-    "@typescript-eslint/eslint-plugin": "6.13.2",
-    "@typescript-eslint/parser": "6.13.2",
-    "esbuild": "0.19.8",
-    "eslint": "8.55.0",
-    "rimraf": "5.0.5",
-    "typescript": "5.3.3",
+    "@types/node": "16.18.106",
+    "@types/vscode": "1.75.1",
+    "@typescript-eslint/eslint-plugin": "8.3.0",
+    "@typescript-eslint/parser": "8.3.0",
+    "esbuild": "0.23.1",
+    "eslint": "9.9.1",
+    "rimraf": "6.0.1",
+    "typescript": "5.5.4",
     "vscode-test": "1.6.1"
   },
   "activationEvents": [
